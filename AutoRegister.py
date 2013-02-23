@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 
 # Tina Latif
-# Minerva Hacker Autoregister
+# Minerva Hacker AutoRegister
 
 import getpass
 import mechanize
 import cookielib
 import os.path
-import filecmp
 import time
 import pickle
 from bs4 import BeautifulSoup
