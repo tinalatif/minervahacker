@@ -1,11 +1,22 @@
 # Minerva Hacker
 
-Minerva Hacker is an admin tool for McGill students that (currently) comes in 2 parts
+Minerva Hacker is a tool intended for make the lives of McGill students a little bit more convenient by dealing with Minerva so they don't have to. It (currently) comes in 2 parts: GetGrades and AutoRegister. 
 
-## GetGrades
+#### GetGrades
+This script will regularly check your trasncript for changes and notify you via growlnotify if any new grades have been updated.
 
-This script will regularly check your trasncript for updates and notify you via growlnotify if there have been any updates.
+#### AutoRegister
+Given a list of CRNs (course registration numbers), this script will attempt to register the user repeatedly until successful (thereby avoiding the need to constantly check to see if a spot has opened up in a course). Upon success, it will notify the user via growlnotify.
+It also saves the username (not password) and CRN selection of the last user for convenience.
 
-## AutoRegister
+## Dependencies
 
-This script will will attempt to register a given list of CRN (course registration number) codes until all are successful. Upon successful registration of a course, it will notify you via growlnotify.
+* [Mechanize](http://wwwsearch.sourceforge.net/mechanize/)
+* [BeautifulSoup](http://www.crummy.com/software/BeautifulSoup/)
+* [Growlnotify](http://growl.info/extras.php)
+
+## Installation
+
+Install the above dependencies using easy_install, then simply run the script as desired through command line, and follow the command line instructions:
+
+	python GetGrades.py
