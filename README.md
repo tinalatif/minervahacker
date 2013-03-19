@@ -6,8 +6,7 @@ Minerva Hacker is a tool intended for make the lives of McGill students a little
 This script will regularly check your trasncript for changes and notify you via growlnotify if any new grades have been updated.
 
 #### AutoRegister
-Given a list of CRNs (course registration numbers), this script will attempt to register the user repeatedly until successful (thereby avoiding the need to constantly check to see if a spot has opened up in a course). Upon success, it will notify the user via growlnotify.
-It also saves the username (not password) and CRN selection of the last user for convenience.
+Coming soon. Given a list of CRNs (course registration numbers), this script will attempt to register the user until successful (thereby avoiding the need to constantly check to see if a spot has opened up in a course). Upon success, it will notify the user via growlnotify.
 
 ## Dependencies
 
