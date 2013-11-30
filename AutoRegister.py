@@ -5,7 +5,6 @@
 
 import getpass
 import mechanize
-import cgi
 import cookielib
 import os
 import time
@@ -79,27 +78,4 @@ def canJoinWaitlist(courseTable):
 		return True
 	return False
 
-# Main
-login()
-
-course = raw_input("Course you want to enroll in (e.g. COMP 330): \n")
-semester = raw_input("Semester you want to enroll in (FALL or WINTER): \n")
-courseSubject = course.split()[0]
-courseNum = course.split()[1]
-
-selectSemester(semester)
-
-table = searchForCourse(courseSubject, courseNum)
-if table is None:
-	print "That class doesn't appear to be offered in that semester!"
-else:
-	if canRegister(table):
-		print "Spot available for registration"
-	# Add to worksheet and stuff
-	else:
-		print "No spots available for registration"
-		# check for waitlist
-		if canJoinWaitlist(table):
-			print "Spot available on the waitlist"
-		else:
-			print "No spots available on the waitlist"
+	time.sleep(600)
