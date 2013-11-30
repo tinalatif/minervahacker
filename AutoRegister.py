@@ -30,7 +30,7 @@ def login():
 	br.form['sid'] = raw_input("Username: (firstname.lastname) \n") + "@mail.mcgill.ca"
 	br.form['PIN'] = getpass.getpass(prompt="Password: (hidden)\n")
 	br.submit()
-	
+
 
 def selectSemester(semester):
 	br.open(addPage)
@@ -58,7 +58,7 @@ def searchForCourse(courseSubject, courseNum):
 	resultPage = br.response().read()
 	if 'No classes were found' in resultPage:
 		return null
-
+	
 	soup = BeautifulSoup(resultPage)
 	table = soup.find('table', summary='This layout table is used to present the sections found')
 	return table
@@ -66,7 +66,7 @@ def searchForCourse(courseSubject, courseNum):
 def canRegister(courseTable):
 	tds = table.findAll('tr')[2]('td')
 	rem = int(tds[12].string)
-	status = tds[19].string 
+	status = tds[19].string
 	if rem > 0 and status == 'Active':
 		return True
 	return False
@@ -74,7 +74,7 @@ def canRegister(courseTable):
 def canJoinWaitlist(courseTable):
 	tds = table.findAll('tr')[2]('td')
 	rem = int(tds[15].string)
-	status = tds[19].string 
+	status = tds[19].string
 	if rem > 0 and status == 'Active':
 		return True
 	return False
@@ -95,7 +95,7 @@ if table is None:
 else:
 	if canRegister(table):
 		print "Spot available for registration"
-		# Add to worksheet and stuff
+	# Add to worksheet and stuff
 	else:
 		print "No spots available for registration"
 		# check for waitlist
