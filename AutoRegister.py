@@ -56,7 +56,7 @@ def searchForCourse(courseSubject, courseNum):
 	return table
 
 def canRegister(courseTable):
-	tds = table.findAll('tr')[2]('td')
+	tds = courseTable.findAll('tr')[2]('td')
 	rem = int(tds[12].string)
 	status = tds[19].string
 	if rem > 0 and status == 'Active':
@@ -64,12 +64,32 @@ def canRegister(courseTable):
 	return False
 
 def canJoinWaitlist(courseTable):
-	tds = table.findAll('tr')[2]('td')
+	tds = courseTable.findAll('tr')[2]('td')
 	rem = int(tds[15].string)
 	status = tds[19].string
 	if rem > 0 and status == 'Active':
 		return True
 	return False
+
+def searchBySemester(semester, courseList):
+	for course in courseList:
+		print "Searching for " + course
+		selectSemester(semester)
+		table = searchForCourse(course.split()[0], course.split()[1])
+		if table is None:
+			print "That class doesn't appear to be offered in that semester!"
+		else:
+			if canRegister(table):
+				print "Spot available for registration"
+			# Add to worksheet and stuff
+			else:
+				print "No spots available for registration"
+				# check for waitlist
+				if canJoinWaitlist(table):
+					print "Spot available on the waitlist"
+				else:
+					print "No spots available on the waitlist"
+
 
 # Main
 login()
@@ -84,40 +104,5 @@ if not fallCoursesInput == "":
 if not winterCoursesInput == "":
 	winterCourses = winterCoursesInput.split(", ")
 
-# Fall courses
-for course in fallCourses:
-	print "Searching for " + course
-	selectSemester("FALL")
-	table = searchForCourse(course.split()[0], course.split()[1])
-	if table is None:
-		print "That class doesn't appear to be offered in that semester!"
-	else:
-		if canRegister(table):
-			print "Spot available for registration"
-		# Add to worksheet and stuff
-		else:
-			print "No spots available for registration"
-			# check for waitlist
-			if canJoinWaitlist(table):
-				print "Spot available on the waitlist"
-			else:
-				print "No spots available on the waitlist"
-
-# Winter courses
-for course in winterCourses:
-	print "Searching for " + course
-	selectSemester("WINTER")
-	table = searchForCourse(course.split()[0], course.split()[1])
-	if table is None:
-		print "That class doesn't appear to be offered in that semester!"
-	else:
-		if canRegister(table):
-			print "Spot available for registration"
-		# Add to worksheet and stuff
-		else:
-			print "No spots available for registration"
-			# check for waitlist
-			if canJoinWaitlist(table):
-				print "Spot available on the waitlist"
-			else:
-				print "No spots available on the waitlist"
+searchBySemester("FALL", fallCourses)
+searchBySemester("WINTER", winterCourses)
