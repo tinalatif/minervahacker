@@ -1,6 +1,5 @@
 import getpass
 import mechanize
-import cgi
 import cookielib
 import os
 import time
@@ -99,10 +98,12 @@ winterCoursesInput = raw_input("WINTER semester courses you want to enroll in, c
 
 fallCourses = []
 winterCourses = []
-if not fallCoursesInput == "":
+if fallCoursesInput != "":
 	fallCourses = fallCoursesInput.split(", ")
-if not winterCoursesInput == "":
+if winterCoursesInput != "":
 	winterCourses = winterCoursesInput.split(", ")
 
 searchBySemester("FALL", fallCourses)
 searchBySemester("WINTER", winterCourses)
+
+br.open(logoutPage)
