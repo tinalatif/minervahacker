@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-
-# Tina Latif
-# MinervaHacker Python Enroller
-
 import getpass
 import mechanize
 import cgi
@@ -14,11 +9,6 @@ from bs4 import BeautifulSoup
 loginPage = 'https://horizon.mcgill.ca/pban1/twbkwbis.P_WWWLogin'
 logoutPage = 'https://horizon.mcgill.ca/pban1/twbkwbis.P_Logout'
 addPage = 'https://horizon.mcgill.ca/pban1/bwskfcls.p_sel_crse_search'
-
-# username = raw_input("Username: (firstname.lastname) \n")
-# username += "@mail.mcgill.ca"
-# password = getpass.getpass(prompt="Password: (hidden)\n")
-
 
 br = mechanize.Browser()
 cj = cookielib.CookieJar()
@@ -32,6 +22,7 @@ def login():
 	br.submit()
 
 
+# FALL or WINTER
 def selectSemester(semester):
 	br.open(addPage)
 	br.select_form(nr=1)
@@ -39,7 +30,8 @@ def selectSemester(semester):
 		br.form["p_term"] = ["201401"]
 		response = br.submit()
 	elif semester == "FALL":
-		print "Fall not implemented yet lol"
+		br.form["p_term"] = ["201309"]
+		response = br.submit()
 	else:
 		print "I said FALL or WINTER"
 
@@ -57,7 +49,7 @@ def searchForCourse(courseSubject, courseNum):
 	br.submit()
 	resultPage = br.response().read()
 	if 'No classes were found' in resultPage:
-		return null
+		return None
 	
 	soup = BeautifulSoup(resultPage)
 	table = soup.find('table', summary='This layout table is used to present the sections found')
@@ -82,24 +74,50 @@ def canJoinWaitlist(courseTable):
 # Main
 login()
 
-course = raw_input("Course you want to enroll in (e.g. COMP 330): \n")
-semester = raw_input("Semester you want to enroll in (FALL or WINTER): \n")
-courseSubject = course.split()[0]
-courseNum = course.split()[1]
+fallCoursesInput = raw_input("Enter FALL semester courses you want to enroll in, comma-separated (e.g. COMP 330, COMP 409, MATH 323). Enter blank line if no FALL courses needed. \n")
+winterCoursesInput = raw_input("WINTER semester courses you want to enroll in, comma-separated (e.g. MATH 315, COMP 529). Enter blank line if no WINTER courses needed. \n")
 
-selectSemester(semester)
+fallCourses = []
+winterCourses = []
+if not fallCoursesInput == "":
+	fallCourses = fallCoursesInput.split(", ")
+if not winterCoursesInput == "":
+	winterCourses = winterCoursesInput.split(", ")
 
-table = searchForCourse(courseSubject, courseNum)
-if table is None:
-	print "That class doesn't appear to be offered in that semester!"
-else:
-	if canRegister(table):
-		print "Spot available for registration"
-	# Add to worksheet and stuff
+# Fall courses
+for course in fallCourses:
+	print "Searching for " + course
+	selectSemester("FALL")
+	table = searchForCourse(course.split()[0], course.split()[1])
+	if table is None:
+		print "That class doesn't appear to be offered in that semester!"
 	else:
-		print "No spots available for registration"
-		# check for waitlist
-		if canJoinWaitlist(table):
-			print "Spot available on the waitlist"
+		if canRegister(table):
+			print "Spot available for registration"
+		# Add to worksheet and stuff
 		else:
-			print "No spots available on the waitlist"
+			print "No spots available for registration"
+			# check for waitlist
+			if canJoinWaitlist(table):
+				print "Spot available on the waitlist"
+			else:
+				print "No spots available on the waitlist"
+
+# Winter courses
+for course in winterCourses:
+	print "Searching for " + course
+	selectSemester("WINTER")
+	table = searchForCourse(course.split()[0], course.split()[1])
+	if table is None:
+		print "That class doesn't appear to be offered in that semester!"
+	else:
+		if canRegister(table):
+			print "Spot available for registration"
+		# Add to worksheet and stuff
+		else:
+			print "No spots available for registration"
+			# check for waitlist
+			if canJoinWaitlist(table):
+				print "Spot available on the waitlist"
+			else:
+				print "No spots available on the waitlist"
