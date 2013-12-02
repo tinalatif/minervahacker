@@ -34,20 +34,17 @@ def selectSemester(semester):
 
 def searchForCourse(courseSubject, courseNum):
 	br.select_form(nr=1)
-	
 	subjControl = br.find_control(name='sel_subj', type="select")
 	subjControl.value = [courseSubject]
-	
 	br.form['sel_crse'] = courseNum
-	
 	# set faculty to null because it takes default val of 'MG'
 	br.form['sel_coll'] = []
-	
 	br.submit()
+	
+	# Get course info table, unless course not found
 	resultPage = br.response().read()
 	if 'No classes were found' in resultPage:
 		return None
-	
 	soup = BeautifulSoup(resultPage)
 	table = soup.find('table', summary='This layout table is used to present the sections found')
 	return table
@@ -75,7 +72,7 @@ def searchBySemester(semester, courseList):
 		selectSemester(semester)
 		table = searchForCourse(course.split()[0], course.split()[1])
 		if table is None:
-			print "That class doesn't appear to be offered in that semester!"
+			print course + " doesn't appear to be offered in the " + semster + " semester."
 		else:
 			if canRegister(table):
 				print "Spot available for registration in " + course
@@ -91,25 +88,53 @@ def searchBySemester(semester, courseList):
 
 
 def registerForCourse(course):
-	# Add to worksheet and stuff
+	# Attempt to register for course
 	br.select_form(nr=1)
 	br.find_control(name='sel_crn', type="checkbox").items[0].selected=True
 	br.submit()
+	
+	
+	# If there's a registration error, display why
 	resultPage = br.response().read()
-	if "Registration Add Errors" in resultPage:
-		soup = BeautifulSoup(resultPage)
-		errorTable = soup.find('table', summary='This layout table is used to present Registration Errors.')
-		tds = errorTable.findAll('tr')[1]('td')
-		error = tds[0].string
-		print "Unfortunately there were problems registering you for " + course + ": " + error
-	else:
-		print "Successfully registered for " + course + " (probably - lol)"   
+	
+
+
 	try:
 		somepage = open('somepage.html', 'w+')
 	except IOError:
 		print "Something bad! Panic!"
 	somepage.write(resultPage)
 	somepage.close()
+	
+
+	if "Registration Add Errors" in resultPage:
+		soup = BeautifulSoup(resultPage)
+		errorTable = soup.find('table', summary='This layout table is used to present Registration Errors.')
+		tds = errorTable.findAll('tr')[1]('td')
+		error = tds[0].string
+		print "Unfortunately there were problems registering you for " + course + ": " + error
+	# Otherwise, make sure that the course is in the 'current schedule'
+	else:
+		soup = BeautifulSoup(resultPage)
+		scheduleTable = soup.find('table', summary='Current Schedule')
+		rows = scheduleTable.findAll('tr')
+		
+		for i in range(2, len(rows)):
+			tds = rows[i]('td')
+			if tds[3].string == course.split()[0] and tds[4].string == course.split()[1]:
+				print "Successfully registered for " + course
+				return
+		print "There was a mysterious error while attempting to register for " + course + ". Uh oh!"
+
+#		for row in rows:
+#			tds = row('td')
+#			if tds[3] == course.split()[0] and tds[4] == course.split()[1]:
+#				print "Successfully registered for " + course
+#				return
+#		print "There was a mysterious error while attempting to register for " + course + ". Uh oh!"
+
+		  
+		
 
 # Main
 login()
