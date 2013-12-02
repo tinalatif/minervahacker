@@ -79,16 +79,34 @@ def searchBySemester(semester, courseList):
 			print "That class doesn't appear to be offered in that semester!"
 		else:
 			if canRegister(table):
-				print "Spot available for registration"
-			# Add to worksheet and stuff
+				print "Spot available for registration in " + course
+				registerForCourse(course)
 			else:
-				print "No spots available for registration"
+				print "No spots available for registration in " + course
 				# check for waitlist
 				if canJoinWaitlist(table):
-					print "Spot available on the waitlist"
+					print "Spot available on the waitlist for " + course
+					registerForCourse(course)
 				else:
-					print "No spots available on the waitlist"
+					print "No spots available on the waitlist for " + course
 
+
+def registerForCourse(course):
+	# Add to worksheet and stuff
+	br.select_form(nr=1)
+	br.find_control(name='sel_crn', type="checkbox").items[0].selected=True
+	br.submit()
+	resultPage = br.response().read()
+	if "Registration Add Errors" in resultPage:
+		print "Unfortunately there were problems registering you for " + course
+	else:
+		print "Successfully registered for " + course + " (probably - lol)"   
+#	try:
+#		courseAdd = open('courseAdd.html', 'w+')
+#	except IOError:
+#		print "Something bad! Panic!"
+#	courseAdd.write(resultPage)
+#	courseAdd.close()
 
 # Main
 login()
