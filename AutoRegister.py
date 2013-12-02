@@ -57,8 +57,9 @@ def searchForCourse(courseSubject, courseNum):
 def canRegister(courseTable):
 	tds = courseTable.findAll('tr')[2]('td')
 	rem = int(tds[12].string)
+	wlNum = int(tds[14].string)
 	status = tds[19].string
-	if rem > 0 and status == 'Active':
+	if rem > 0 and wlNum == 0 and status == 'Active':
 		return True
 	return False
 
