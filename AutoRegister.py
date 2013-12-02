@@ -20,8 +20,6 @@ def login():
 	br.form['PIN'] = getpass.getpass(prompt="Password: (hidden)\n")
 	br.submit()
 
-
-# FALL or WINTER
 def selectSemester(semester):
 	br.open(addPage)
 	br.select_form(nr=1)
@@ -99,22 +97,26 @@ def registerForCourse(course):
 	br.submit()
 	resultPage = br.response().read()
 	if "Registration Add Errors" in resultPage:
-		print "Unfortunately there were problems registering you for " + course
+		soup = BeautifulSoup(resultPage)
+		errorTable = soup.find('table', summary='This layout table is used to present Registration Errors.')
+		tds = errorTable.findAll('tr')[1]('td')
+		error = tds[0].string
+		print "Unfortunately there were problems registering you for " + course + ": " + error
 	else:
 		print "Successfully registered for " + course + " (probably - lol)"   
-#	try:
-#		courseAdd = open('courseAdd.html', 'w+')
-#	except IOError:
-#		print "Something bad! Panic!"
-#	courseAdd.write(resultPage)
-#	courseAdd.close()
+	try:
+		somepage = open('somepage.html', 'w+')
+	except IOError:
+		print "Something bad! Panic!"
+	somepage.write(resultPage)
+	somepage.close()
 
 # Main
 login()
 
+# Get desired courses
 fallCoursesInput = raw_input("Enter FALL semester courses you want to enroll in, comma-separated (e.g. COMP 330, COMP 409, MATH 323). Enter blank line if no FALL courses needed. \n")
 winterCoursesInput = raw_input("WINTER semester courses you want to enroll in, comma-separated (e.g. MATH 315, COMP 529). Enter blank line if no WINTER courses needed. \n")
-
 fallCourses = []
 winterCourses = []
 if fallCoursesInput != "":
@@ -122,6 +124,7 @@ if fallCoursesInput != "":
 if winterCoursesInput != "":
 	winterCourses = winterCoursesInput.split(", ")
 
+# Attempt to register by semester
 searchBySemester("FALL", fallCourses)
 searchBySemester("WINTER", winterCourses)
 
