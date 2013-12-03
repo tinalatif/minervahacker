@@ -1,13 +1,12 @@
 import getpass
 import mechanize
 import cookielib
-import os
-import time
 from bs4 import BeautifulSoup
 
 loginPage = 'https://horizon.mcgill.ca/pban1/twbkwbis.P_WWWLogin'
 logoutPage = 'https://horizon.mcgill.ca/pban1/twbkwbis.P_Logout'
 addPage = 'https://horizon.mcgill.ca/pban1/bwskfcls.p_sel_crse_search'
+quickAddPage = 'https://horizon.mcgill.ca/pban1/bwskfreg.P_AltPin'
 
 br = mechanize.Browser()
 cj = cookielib.CookieJar()
@@ -19,7 +18,7 @@ def login():
 		br.open(loginPage)
 		br.select_form(nr=1)
 		br.form['sid'] = raw_input("Username: (firstname.lastname) \n") + '@mail.mcgill.ca'
-		br.form['PIN'] = getpass.getpass(prompt="Password: (hidden)\n")
+		br.form['PIN'] = getpass.getpass(prompt="\nPassword: (hidden)\n")
 		br.submit()
 		response = br.response().read()
 		if "You have entered an invalid McGill Username" in response:
@@ -77,16 +76,10 @@ def registerForCourse(course):
 	# Attempt to register for course
 	br.select_form(nr=1)
 	br.find_control(name='sel_crn', type='checkbox').items[0].selected=True
-	br.submit()	
+	br.submit()
 	
 	# If there's a registration error, display why
 	resultPage = br.response().read()
-#	try:
-#		somepage = open('somepage.html', 'w+')
-#	except IOError:
-#		print "Something bad! Panic!"
-#	somepage.write(resultPage)
-#	somepage.close()	
 	if "Registration Add Errors" in resultPage:
 		soup = BeautifulSoup(resultPage)
 		errorTable = soup.find('table', summary='This layout table is used to present Registration Errors.')
@@ -97,21 +90,47 @@ def registerForCourse(course):
 	else:
 		soup = BeautifulSoup(resultPage)
 		scheduleTable = soup.find('table', summary='Current Schedule')
-		rows = scheduleTable.findAll('tr')
-		
-		for i in range(2, len(rows)):
-			tds = rows[i]('td')
-			if tds[3].string == course.split()[0] and tds[4].string == course.split()[1]:
-				print "Successfully registered for " + course
-				return
-		print "There was a mysterious error while attempting to register for " + course + ". Uh oh!"		
+		if courseAddedToSchedule(course, scheduleTable):
+			print "Successfully registered for " + course
+		else:
+			print "There was a mysterious error while attempting to register for " + course + ". Uh oh!"
+
+def joinWaitlist(course, CRN):
+	# Semester should already be saved
+	br.open(quickAddPage)
+	br.select_form(nr=1)
+	enterCRNControl = br.find_control(name='CRN_IN', type='text', nr=0)
+	enterCRNControl.value = CRN
+	br.submit()
+	# Resultant page prompt user to join waitlist
+	br.select_form(nr=1)
+	joinWLControl = br.find_control(name='RSTS_IN', type='select', id='waitaction_id1')
+	joinWLControl.value = ['LW']
+	br.submit()
+
+	# Verify that course is in 'current schedule'
+	resultPage = br.response().read()
+	soup = BeautifulSoup(resultPage)
+	scheduleTable = soup.find('table', summary='Current Schedule')
+	if courseAddedToSchedule(course, scheduleTable):
+		print "Successfully added to the waitlist for " + course
+	else:
+		print "There was a mysterious error while attempting to join the waitlist for " + course + ". Uh oh!"
+	
+def courseAddedToSchedule(course, schedule):
+	rows = schedule.findAll('tr')
+	for i in range(2, len(rows)):
+		tds = rows[i]('td')
+		if tds[3].string == course.split()[0] and tds[4].string == course.split()[1]:
+			return True
+	return False
 
 # Main
 login()
 
 # Get desired courses
 fallCoursesInput = raw_input("Enter FALL semester courses you want to enroll in, comma-separated (e.g. COMP 330, COMP 409, MATH 323). Enter blank line if no FALL courses needed. \n")
-winterCoursesInput = raw_input("WINTER semester courses you want to enroll in, comma-separated (e.g. MATH 315, COMP 529). Enter blank line if no WINTER courses needed. \n")
+winterCoursesInput = raw_input("\nEnter WINTER semester courses you want to enroll in, comma-separated (e.g. MATH 315, COMP 529). Enter blank line if no WINTER courses needed. \n")
 fallCourses = []
 winterCourses = []
 if fallCoursesInput != "":
@@ -138,7 +157,8 @@ for semester in coursesPerSemester:
 				print "No spots for registration in " + course
 				if canJoinWaitlist(courseInfo):
 					print "Spot available on the waitlist for " + course
-					registerForCourse(course)
+					CRN = courseInfo.findAll('tr')[2]('td')[1].string
+					joinWaitlist(course, CRN)
 				else:
 					print "No spots available on the waitlist for " + course
 
