@@ -18,7 +18,7 @@ def login():
 	while not successful:
 		br.open(loginPage)
 		br.select_form(nr=1)
-		br.form['sid'] = raw_input("Username: (firstname.lastname) \n") + "@mail.mcgill.ca"
+		br.form['sid'] = raw_input("Username: (firstname.lastname) \n") + '@mail.mcgill.ca'
 		br.form['PIN'] = getpass.getpass(prompt="Password: (hidden)\n")
 		br.submit()
 		response = br.response().read()
@@ -30,18 +30,18 @@ def login():
 def selectSemester(semester):
 	br.open(addPage)
 	br.select_form(nr=1)
-	if semester == "WINTER":
-		br.form["p_term"] = ["201401"]
+	if semester == 'WINTER':
+		br.form['p_term'] = ['201401']
 		response = br.submit()
-	elif semester == "FALL":
-		br.form["p_term"] = ["201309"]
+	elif semester == 'FALL':
+		br.form['p_term'] = ['201309']
 		response = br.submit()
 	else:
-		print "I said FALL or WINTER"
+		raise Exception("Only FALL and WINTER semesters supported")
 
-def searchForCourse(courseSubject, courseNum):
+def getCourseInfo(courseSubject, courseNum):
 	br.select_form(nr=1)
-	subjControl = br.find_control(name='sel_subj', type="select")
+	subjControl = br.find_control(name='sel_subj', type='select')
 	subjControl.value = [courseSubject]
 	br.form['sel_crse'] = courseNum
 	# set faculty to null because it takes default val of 'MG'
@@ -73,31 +73,10 @@ def canJoinWaitlist(courseTable):
 		return True
 	return False
 
-def searchBySemester(semester, courseList):
-	for course in courseList:
-		print "Searching for " + course
-		selectSemester(semester)
-		table = searchForCourse(course.split()[0], course.split()[1])
-		if table is None:
-			print course + " doesn't appear to be offered in the " + semster + " semester."
-		else:
-			if canRegister(table):
-				print "Spot available for registration in " + course
-				registerForCourse(course)
-			else:
-				print "No spots available for registration in " + course
-				# check for waitlist
-				if canJoinWaitlist(table):
-					print "Spot available on the waitlist for " + course
-					registerForCourse(course)
-				else:
-					print "No spots available on the waitlist for " + course
-
-
 def registerForCourse(course):
 	# Attempt to register for course
 	br.select_form(nr=1)
-	br.find_control(name='sel_crn', type="checkbox").items[0].selected=True
+	br.find_control(name='sel_crn', type='checkbox').items[0].selected=True
 	br.submit()	
 	
 	# If there's a registration error, display why
@@ -136,12 +115,31 @@ winterCoursesInput = raw_input("WINTER semester courses you want to enroll in, c
 fallCourses = []
 winterCourses = []
 if fallCoursesInput != "":
-	fallCourses = fallCoursesInput.split(", ")
+	fallCourses = fallCoursesInput.split(', ')
 if winterCoursesInput != "":
-	winterCourses = winterCoursesInput.split(", ")
+	winterCourses = winterCoursesInput.split(', ')
+coursesPerSemester = {'FALL': fallCourses, 'WINTER': winterCourses}
 
 # Attempt to register by semester
-searchBySemester("FALL", fallCourses)
-searchBySemester("WINTER", winterCourses)
+for semester in coursesPerSemester:
+	for course in coursesPerSemester[semester]:
+		print "Searching for " + course
+		selectSemester(semester)
+		courseInfo = getCourseInfo(course.split()[0], course.split()[1])
+		if courseInfo is None:
+			print course + " doesn't appear to be offered in the " + semester + " semester"
+		else:
+			# Try to register for course
+			if canRegister(courseInfo):
+				print "Spot available for registration in " + course
+				registerForCourse(course)
+			# Check for waitlist opening
+			else:
+				print "No spots for registration in " + course
+				if canJoinWaitlist(courseInfo):
+					print "Spot available on the waitlist for " + course
+					registerForCourse(course)
+				else:
+					print "No spots available on the waitlist for " + course
 
 br.open(logoutPage)
