@@ -14,11 +14,18 @@ cj = cookielib.CookieJar()
 br.set_cookiejar(cj)
 
 def login():
-	br.open(loginPage)
-	br.select_form(nr=1)
-	br.form['sid'] = raw_input("Username: (firstname.lastname) \n") + "@mail.mcgill.ca"
-	br.form['PIN'] = getpass.getpass(prompt="Password: (hidden)\n")
-	br.submit()
+	successful = False
+	while not successful:
+		br.open(loginPage)
+		br.select_form(nr=1)
+		br.form['sid'] = raw_input("Username: (firstname.lastname) \n") + "@mail.mcgill.ca"
+		br.form['PIN'] = getpass.getpass(prompt="Password: (hidden)\n")
+		br.submit()
+		response = br.response().read()
+		if "You have entered an invalid McGill Username" in response:
+			print "That username/password combination is invalid. Please try again."
+		else:
+			successful = True
 
 def selectSemester(semester):
 	br.open(addPage)
@@ -91,22 +98,16 @@ def registerForCourse(course):
 	# Attempt to register for course
 	br.select_form(nr=1)
 	br.find_control(name='sel_crn', type="checkbox").items[0].selected=True
-	br.submit()
-	
+	br.submit()	
 	
 	# If there's a registration error, display why
 	resultPage = br.response().read()
-	
-
-
-	try:
-		somepage = open('somepage.html', 'w+')
-	except IOError:
-		print "Something bad! Panic!"
-	somepage.write(resultPage)
-	somepage.close()
-	
-
+#	try:
+#		somepage = open('somepage.html', 'w+')
+#	except IOError:
+#		print "Something bad! Panic!"
+#	somepage.write(resultPage)
+#	somepage.close()	
 	if "Registration Add Errors" in resultPage:
 		soup = BeautifulSoup(resultPage)
 		errorTable = soup.find('table', summary='This layout table is used to present Registration Errors.')
@@ -124,17 +125,7 @@ def registerForCourse(course):
 			if tds[3].string == course.split()[0] and tds[4].string == course.split()[1]:
 				print "Successfully registered for " + course
 				return
-		print "There was a mysterious error while attempting to register for " + course + ". Uh oh!"
-
-#		for row in rows:
-#			tds = row('td')
-#			if tds[3] == course.split()[0] and tds[4] == course.split()[1]:
-#				print "Successfully registered for " + course
-#				return
-#		print "There was a mysterious error while attempting to register for " + course + ". Uh oh!"
-
-		  
-		
+		print "There was a mysterious error while attempting to register for " + course + ". Uh oh!"		
 
 # Main
 login()
