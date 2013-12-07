@@ -13,16 +13,20 @@ cj = cookielib.CookieJar()
 br.set_cookiejar(cj)
 
 def login():
+	global username
+	global password
 	successful = False
 	while not successful:
 		br.open(loginPage)
 		br.select_form(nr=1)
-		br.form['sid'] = raw_input("Username: (firstname.lastname) \n") + '@mail.mcgill.ca'
-		br.form['PIN'] = getpass.getpass(prompt="\nPassword: (hidden)\n")
+		br.form['sid'] = username
+		br.form['PIN'] = password
 		br.submit()
 		response = br.response().read()
 		if "You have entered an invalid McGill Username" in response:
 			print "That username/password combination is invalid. Please try again."
+			username = raw_input("Username: (firstname.lastname) \n") + '@mail.mcgill.ca'
+			password = getpass.getpass(prompt="Password: (hidden)\n")
 		else:
 			successful = True
 
@@ -125,7 +129,9 @@ def courseAddedToSchedule(course, schedule):
 			return True
 	return False
 
-# Main
+username = raw_input("Username: (firstname.lastname) \n") + '@mail.mcgill.ca'
+password = getpass.getpass(prompt="Password: (hidden)\n")
+
 login()
 
 # Get desired courses
