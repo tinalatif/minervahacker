@@ -31,6 +31,7 @@ def login():
             username = raw_input("Username: (firstname.lastname) \n") + '@mail.mcgill.ca'
             password = getpass.getpass(prompt="Password: (hidden)\n")
         else:
+            print "You have sucessfully logged in."
             successful = True
 
 def getTranscript():
@@ -48,6 +49,7 @@ grades = getTranscript()
 
 # periodically check for updates
 while(True):
+    print "Polling for new grades..."
     time.sleep(config.interval)
     newGrades = getTranscript()
     if 'UNOFFICIAL Transcript' not in newGrades:
