@@ -49,6 +49,7 @@ grades = getTranscript()
 
 # periodically check for updates
 while(True):
+    print "Polling for new grades..."
     time.sleep(config.interval)
     newGrades = getTranscript()
     if 'UNOFFICIAL Transcript' not in newGrades:
