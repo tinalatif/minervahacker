@@ -31,6 +31,7 @@ def login():
             username = raw_input("Username: (firstname.lastname) \n") + '@mail.mcgill.ca'
             password = getpass.getpass(prompt="Password: (hidden)\n")
         else:
+            print "You have sucessfully logged in."
             successful = True
 
 def getTranscript():
