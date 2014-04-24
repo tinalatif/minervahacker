@@ -15,7 +15,7 @@ br.set_cookiejar(cj)
 
 client = TwilioRestClient(config.account_sid, config.auth_token)
 
-def login():
+def validate():
     global username
     global password
     successful = False
@@ -35,7 +35,13 @@ def login():
             successful = True
 
 def getTranscript():
-    login()
+    #login
+    br.open(loginPage)
+    br.select_form(nr=1)
+    br.form['sid'] = username
+    br.form['PIN'] = password
+    br.submit()
+    #fetch transcript
     br.open(transcriptPage)
     grades = br.response().read()
     br.open(logoutPage)
@@ -43,6 +49,7 @@ def getTranscript():
 
 username = raw_input("Username: (firstname.lastname) \n") + '@mail.mcgill.ca'
 password = getpass.getpass(prompt="Password: (hidden)\n")
+validate()
 
 # init transcript
 grades = getTranscript()
