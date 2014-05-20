@@ -55,9 +55,9 @@ validate()
 grades = getTranscript()
 
 # periodically check for updates
-while(True):
-    print "Polling for new grades..."
+while(True):    
     time.sleep(config.interval)
+    print "Polling for new grades..."
     newGrades = getTranscript()
     if 'UNOFFICIAL Transcript' not in newGrades:
         # probably problem with minerva/internet
