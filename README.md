@@ -9,12 +9,12 @@ This will periodically check your transcript for changes and send you a text mes
 ### Installation
 
 * Make a (free) Twilio account and verify your phone number
-* Put Twilio info in config.py
-* Install requirements with `pip install -r requirements.txt`
-* Run it in your console ghetto-style or be fancier and set it up using launchd or cron or whatever your heart desires
+* Put your Twilio info in config.py
+* Install requirements with `pip install -r requirements.txt` (you may need to install pip first)
+* Run the script!
   
 ## AutoRegister
 
-This has to be redone completely because the old method of going through quick-add and periodically attempting to register for courses until successful ended up getting people's registration abilities revoked... lol oops.
+This has to be redone completely because the old method of periodically going through quick-add and attempting to register for courses until successful ended up getting people's registration abilities revoked... oops.
 
-Intent is to provide a script to periodically check if a course has open spots and if so, register the user, or alternatively add the user to the waitlist if possible.
+Intent is to provide a script to periodically check if a course has open spots and if so, either register the user or try to add the user to the waitlist if the course is full.
